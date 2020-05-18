@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Hello React</title>
+    <script src="https://unpkg.com/react@16/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/babel-standalone@6.15.0/babel.min.js"></script>
+
+  </head>
+  <body>
+    <div id="root"></div>
+    <!-- compilation JSX => JS -->
+    <script type="text/babel">
+
+    const questions = {
+        'symfony' : {
+            title : "Symfony design pattern",
+            choices : ['MMV', 'MVC', 'MMVV'],
+            response : 1,
+            type : "select",
+            name : "symfony",
+            feedback : 'Symfony est basé sur le pattern MVC'
+        },
+        'react' : {
+            title : "React est-il un framework ?",
+            choices : ['yes', 'no'],
+            response : 1,
+            type : "radio",
+            name : "react",
+            feedback : "React est une librairie"
+        },
+        'jsx' : {
+            title : "JSX c'est quoi ?",
+            choices : ['JSX est un langage compilé', 'JSX est un sur-ensemble développé par Facebook'],
+            response : 1,
+            type: "radio" ,
+            name : "jsx",
+            feedback : 'JSX est un sur ensemble à JS'
+        }
+    }
+
+
+    class Wrapper extends React.Component{
+      render(){
+        return(
+          <div>{this.props.children}</div>
+        )
+      }
+    }
+
+    class Form extends React.Component{
+
+      constructor(props) {
+        super(props)
+        this.state = {
+          questions: questions
+        }
+      }
+        
+      render(){
+        
+        return(
+          <form>
+            <Wrapper index={0} key={0}>
+              <h1>QCM React</h1>
+              <label htmlFor="test">votre email (*) : </label>
+              <Input id="test" />
+              <button type="submit">Valider</button>
+            </Wrapper>
+            {
+              Object.entries(this.state.questions).map((elm,i) => {
+
+                // q pour question
+                const q = elm[1];
+                console.log(elm[1], i)
+                return (
+                  <Wrapper key={i+1}>
+                    {q.type === 'select' ? 
+                      <Select {...q} />
+                      :
+                      q.type === 'radio' && <Radio {...q} />
+                    }
+                  </Wrapper>
+                )
+              })
+            }
+            {/*
+              <Wrapper>
+                    <h1>Q1 React est-il un framework ?</h1>
+                    <label htmlFor="test">votre email (*) : </label>
+                    <Input id="test" />
+                    <button type="submit">Valider</button>
+                  </Wrapper>
+              */}
+            
+          </form>
+        )
+      }
+    }
+
+    class Input extends React.Component{
+        
+      render(){
+        return(
+          <input type="text" id={this.props.id} />
+        )
+      }
+    }
+
+    class Select extends React.Component{
+        
+      render(){
+        return(
+          <div>
+            <label htmlFor="">{this.props.title}</label>
+            <select key={this.props.key}>
+              {
+                this.props.choices.map((elm, i) => {
+                  return (
+                    <option key={i}>{elm}</option>
+                  )
+                })
+              }
+            </select>
+          </div>
+        )
+      }
+    }
+    class Radio extends React.Component{
+        
+      render(){
+        return(
+          <div>
+            {
+              this.props.choices.map((elm, i ) => {
+                return (
+                  <div key={i}>
+                    <label htmlFor="">{elm}</label>
+                    <input type="radio" value={elm} />
+                  </div>
+                )
+              })
+            }
+          </div>
+        )
+      }
+    }
+    class File extends React.Component{
+        
+      render(){
+        return(
+          <div></div>
+        )
+      }
+    }
+
+    // Rendu dans le DOM
+    ReactDOM.render(<Form/>,document.getElementById('root'));
+
+    </script>
+  </body>
+</html>
