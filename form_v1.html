@@ -15,7 +15,7 @@
 
     const questions = {
         'symfony' : {
-            title : "Symfony design pattern",
+            title : "Symfony utilise quel design pattern ?",
             choices : ['MMV', 'MVC', 'MMVV'],
             response : 1,
             type : "select",
@@ -57,6 +57,10 @@
           questions: questions
         }
       }
+
+      hChange = (e) => {
+        console.log('hChange', e.target, e.target.value)
+      }
         
       render(){
         
@@ -73,14 +77,17 @@
 
                 // q pour question
                 const q = elm[1];
-                console.log(elm[1], i)
                 return (
                   <Wrapper key={i+1}>
                     {q.type === 'select' ? 
-                      <Select {...q} />
+                      <Select {...q} num={i} hChange={this.hChange} />
                       :
-                      q.type === 'radio' && <Radio {...q} />
+                      q.type === 'radio' ? 
+                        <Radio {...q} num={i} hChange={this.hChange} /> 
+                        : 
+                        <div></div>
                     }
+                    <button type="submit">Valider</button>
                   </Wrapper>
                 )
               })
@@ -108,7 +115,7 @@
             <h2>
               <label htmlFor="">{this.props.title}</label>
             </h2>
-            <select key={this.props.key}>
+            <select key={this.props.key} onChange={this.props.hChange}>
               {
                 this.props.choices.map((elm, i) => {
                   return (
@@ -132,7 +139,7 @@
                 return (
                   <div key={i}>
                     <label htmlFor="">{elm}</label>
-                    <input type="radio" value={elm} />
+                    <input type="radio" value={elm} onChange={this.props.hChange} />
                   </div>
                 )
               })
