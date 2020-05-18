@@ -85,14 +85,6 @@
                 )
               })
             }
-            {/*
-              <Wrapper>
-                    <h1>Q1 React est-il un framework ?</h1>
-                    <label htmlFor="test">votre email (*) : </label>
-                    <Input id="test" />
-                    <button type="submit">Valider</button>
-                  </Wrapper>
-              */}
             
           </form>
         )
@@ -132,6 +124,7 @@
       render(){
         return(
           <div>
+            <h2>{this.props.title}</h2>
             {
               this.props.choices.map((elm, i ) => {
                 return (
