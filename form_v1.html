@@ -105,7 +105,9 @@
       render(){
         return(
           <div>
-            <label htmlFor="">{this.props.title}</label>
+            <h2>
+              <label htmlFor="">{this.props.title}</label>
+            </h2>
             <select key={this.props.key}>
               {
                 this.props.choices.map((elm, i) => {
