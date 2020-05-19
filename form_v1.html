@@ -26,6 +26,11 @@
         justify-content: center;
         height: '100%'
       }
+      .popup {
+        box-shadow: 0 0 19px 1px #0000005c;
+        border-radius: 10px;
+        padding: 1rem;
+      }
     </style>
 
   </head>
@@ -108,8 +113,10 @@
               </div>
               :
               <div className="text-center wrapper-score">
-                <span className="fa fa-star" style={{color:'orange', fontSize: '2rem'}}></span>
-                Votre score est de <span style={{color:'orange', fontSize: '2rem'}}>{this.state.score}</span>
+                <div className="popup">
+                  <span className="fa fa-star" style={{color:'orange', fontSize: '2rem'}}></span>
+                  Votre score est de <span style={{color:'orange', fontSize: '2rem'}}>{this.state.score}</span>
+                </div>
               </div>
             }
           </div>
