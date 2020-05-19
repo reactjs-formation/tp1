@@ -235,11 +235,10 @@
             for (let i = 0; i < n; i++) {
 
               const answer = parseInt(this.state.finalAnswer[i]);
-              const godAnswer = this.state.questions[0][1].response
+              const goodAnswer = this.state.questions[0][1].response
               
-              if (answer === godAnswer) {
-                score++;
-              }
+              if (answer === goodAnswer) score++;
+
             }
             return score;
         }
@@ -266,10 +265,10 @@
                 return (
                   <Wrapper key={i+1}>
                     {q.type === 'select' ? 
-                      <Select {...q} num={i} hChange={this.hChange} />
+                      <Select {...q} num={i} hChange={this.hChange} disabled={(this.state.finalAnswer[i] !== -1)} />
                       :
                       q.type === 'radio' ? 
-                        <Radio {...q} num={i} hChange={this.hChange} /> 
+                        <Radio {...q} num={i} hChange={this.hChange} disabled={(this.state.finalAnswer[i] !== -1)} /> 
                         : 
                         <div></div>
                     }
@@ -311,7 +310,7 @@
             <div>
               <label htmlFor={'q'+(this.props.num+1)} className="">{this.props.question}</label>
             </div>
-            <select key={this.props.key} onChange={this.props.hChange} id={'q'+(this.props.num+1)} data-q-index={this.props.num} defaultValue="-1">
+            <select key={this.props.key} onChange={this.props.hChange} disabled={this.props.disabled}  id={'q'+(this.props.num+1)} data-q-index={this.props.num} defaultValue="-1">
               <option value="-1">Choix</option>
               {
                 this.props.choices.map((elm, i) => {
@@ -338,7 +337,7 @@
               this.props.choices.map((elm, i ) => {
                 return (
                   <div key={i}>
-                    <input type="radio" name={'q'+this.props.num} value={i} id={'q'+(this.props.num+1)+i} onChange={this.props.hChange} data-q-index={this.props.num} />
+                    <input type="radio" disabled={this.props.disabled} name={'q'+this.props.num} value={i} id={'q'+(this.props.num+1)+i} onChange={this.props.hChange} data-q-index={this.props.num} />
                     <label htmlFor={'q'+(this.props.num+1)+i}> {elm}</label>
                   </div>
                 )
