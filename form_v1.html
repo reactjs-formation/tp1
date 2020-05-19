@@ -2,10 +2,20 @@
 <html>
   <head>
     <meta charset="UTF-8" />
-    <title>Hello React</title>
+    <title>Florent - TP1</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" />
     <script src="https://unpkg.com/react@16/umd/react.development.js"></script>
     <script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
     <script src="https://unpkg.com/babel-standalone@6.15.0/babel.min.js"></script>
+
+    <style>
+      input[type=radio] {
+        margin-right: 10px;
+      }
+      label{
+        margin-bottom: 10px;
+      }
+    </style>
 
   </head>
   <body>
@@ -15,7 +25,8 @@
 
     const questions = {
         'symfony' : {
-            title : "Symfony utilise quel design pattern ?",
+            title : "Symfony design pattern.",
+            question: 'Sélectionnez ci-dessous dans la liste la bonne définition caractérisant ce framework PHP',
             choices : ['MMV', 'MVC', 'MMVV'],
             response : 1,
             type : "select",
@@ -24,6 +35,7 @@
         },
         'react' : {
             title : "React est-il un framework ?",
+            question: 'Répondez en choisissant une seule et bonne réponse ci-dessous',
             choices : ['yes', 'no'],
             response : 1,
             type : "radio",
@@ -32,6 +44,7 @@
         },
         'jsx' : {
             title : "JSX c'est quoi ?",
+            question: 'Répondez en choisissant une seule et bonne réponse ci-dessous',
             choices : ['JSX est un langage compilé', 'JSX est un sur-ensemble développé par Facebook'],
             response : 1,
             type: "radio" ,
@@ -40,40 +53,169 @@
         }
     }
 
+    class App extends React.Component{
+      constructor(props) {
+        super(props)
+        this.state = {
+          showScore: false,
+          showBtnScore: false,
+          score: null
+        }
+      }
+
+      updateAppState = (data) => {
+
+        const n = data.questions.length
+        
+        // verifie si toute les reponses sont soumises
+        let answersSubmited = true;
+        for (let i = 0; i < n; i++) {
+          const element = data.finalAnswer[i];
+          if (element === -1) {
+            console.log('element', element)
+            answersSubmited = false;
+            break;
+          }
+        }
+
+        // montre le bouton d'affichage du score
+        if (answersSubmited) {
+          this.setState({
+            showBtnScore: true,
+            
+          }, () => {
+            console.log('updateAppState', this.state)
+          })
+        }
+      }
+
+      showScore = () => {
+        this.setState({
+          showScore: !this.state.showScore
+        })
+      }
+
+      showBtnScore = (score) => {
+        this.setState({
+          showBtnScore: true,
+          score: score
+        })
+      }
+ 
+      render(){
+        return(
+          <div className="container">
+
+            { this.state.showScore === false ?
+              <div>
+                <Form updateAppState={this.updateAppState} />
+                {
+                  this.state.showBtnScore === true  &&
+                  <div className="text-center p-5">
+                    <button className="btn btn-primary" onClick={this.showScore}>Montrer le score</button>
+                  </div>
+                }
+              </div>
+              :
+              <div>
+                Score {this.state.score}
+              </div>
+            }
+          </div>
+        )
+      }
+    }
+
 
     class Wrapper extends React.Component{
       render(){
         return(
-          <div>{this.props.children}</div>
+          <div className="row flex-column">{this.props.children}</div>
         )
       }
     }
 
     class Form extends React.Component{
 
+      
       constructor(props) {
         super(props)
+        
+        let q = Object.entries(questions)
+        q = [
+          q[1],
+          q[2],
+          q[0]
+        ]
+        const n = q.length
+        
         this.state = {
-          questions: questions
+          questions: q,
+          currentAnswer: Array(n).fill(-1),
+          finalAnswer: Array(n).fill(-1),
+          score: 0,
+          currentEmail: null,
+          email: null
         }
       }
 
       hChange = (e) => {
-        console.log('hChange', e.target, e.target.value)
+        console.log('hChange', e.target, e.target.value, e.target.dataset.qIndex)
+        const index = e.target.dataset.qIndex;
+        this.state.currentAnswer[index] = e.target.value
+        console.log(this.state.currentAnswer)
+      }
+
+      hClick = (e) => {
+        e.preventDefault();
+        console.log(e.target)
+        const index = e.target.dataset.qIndex;
+        this.state.finalAnswer[index] = this.state.currentAnswer[index]
+        this.setState({}, () => {
+          console.log(this.state)
+          this.props.updateAppState(this.state);
+        })
+      }
+
+      emailRegistration = (e, save=false) => {
+        e.preventDefault();
+
+        let state = {
+          currentEmail: e.target.value
+        }
+
+        if(!save) {
+          console.log('Update email')
+          state = {
+            currentEmail: e.target.value
+          }
+        } else {
+          console.log('Save email')
+          state = {
+            email: this.state.currentEmail
+          }
+        }
+
+        this.setState({...state}, () => {
+          console.log(this.state)
+          this.props.updateAppState(this.state);
+        })
       }
         
       render(){
         
         return(
-          <form>
+          <form className="w-50 m-auto">
             <Wrapper index={0} key={0}>
               <h1>QCM React</h1>
-              <label htmlFor="test">votre email (*) : </label>
-              <Input id="test" />
-              <button type="submit">Valider</button>
+              <label htmlFor="test" className="form-check-label">votre email (*) : </label>
+              <Input id="test" emailRegistration={this.emailRegistration} />
+              <div className="form-group text-right col-12">
+                <button className="btn btn-primary" type="submit" onClick={(e) => {this.emailRegistration(e, true)}} disabled={(this.state.email !== null)}>Valider</button>
+              </div>
             </Wrapper>
             {
-              Object.entries(this.state.questions).map((elm,i) => {
+              this.state.questions.map((elm,i) => {
 
                 // q pour question
                 const q = elm[1];
@@ -87,13 +229,17 @@
                         : 
                         <div></div>
                     }
-                    <button type="submit">Valider</button>
+                    
+                    <div className="form-group text-right col-12">
+                      <button type="submit" className="btn btn-primary" data-q-index={i} onClick={this.hClick} disabled={(this.state.finalAnswer[i] !== -1)}>Valider</button>
+                    </div>
                   </Wrapper>
                 )
               })
             }
             
           </form>
+          
         )
       }
     }
@@ -102,7 +248,9 @@
         
       render(){
         return(
-          <input type="text" id={this.props.id} />
+          <div className="form-group col-12">
+            <input type="text" className="form-text" id={this.props.id} onChange={(e) => {this.props.emailRegistration(e, false)}} />
+          </div>
         )
       }
     }
@@ -111,15 +259,19 @@
         
       render(){
         return(
-          <div>
+          <div className="form-text">
             <h2>
-              <label htmlFor="">{this.props.title}</label>
+              {'Q'+(this.props.num+1)} {this.props.title}
             </h2>
-            <select key={this.props.key} onChange={this.props.hChange}>
+            <div>
+              <label htmlFor="" className="">{this.props.question}</label>
+            </div>
+            <select key={this.props.key} onChange={this.props.hChange} data-q-index={this.props.num} defaultValue="-1">
+              <option value="-1">Choix</option>
               {
                 this.props.choices.map((elm, i) => {
                   return (
-                    <option key={i}>{elm}</option>
+                    <option key={i} value={i}>{elm}</option>
                   )
                 })
               }
@@ -133,13 +285,16 @@
       render(){
         return(
           <div>
-            <h2>{this.props.title}</h2>
+            <h2>{'Q'+(this.props.num+1)} {this.props.title}</h2>
+            <div>
+              <label htmlFor="" className="">{this.props.question}</label>
+            </div>
             {
               this.props.choices.map((elm, i ) => {
                 return (
                   <div key={i}>
-                    <label htmlFor="">{elm}</label>
-                    <input type="radio" value={elm} onChange={this.props.hChange} />
+                    <input type="radio" name={'q'+this.props.num} value={i} onChange={this.props.hChange} data-q-index={this.props.num} />
+                    <label htmlFor=""> {elm}</label>
                   </div>
                 )
               })
@@ -158,7 +313,7 @@
     }
 
     // Rendu dans le DOM
-    ReactDOM.render(<Form/>,document.getElementById('root'));
+    ReactDOM.render(<App />,document.getElementById('root'));
 
     </script>
   </body>
