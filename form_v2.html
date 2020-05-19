@@ -38,6 +38,20 @@
       .feedback h1 {
         font-size: 1.6rem;
       }
+      .feedback {
+        display: flex;
+        flex-direction: column;
+        align-items: start;
+        background: cornsilk;
+        box-shadow: 0 0 10px 0 #0000009e;
+        border-radius: 1rem;
+        padding: 1rem;
+        margin: 1rem;
+      }
+      .score-focus-color {
+        color: orange;
+        font-size: 2rem;
+      }
     </style>
 
   </head>
@@ -111,11 +125,11 @@
         const q = this.state.feedback.questions;
         const r = this.state.feedback.answers;
         return (
-          <div style={{display:'flex', flexDirection:'column', alignItems: 'start'}} className="col-6">
+          <div className="feedback col-6">
             {q.map((question, i) => {
               return (
                 <div key={i} style={{flexGrow: '1', width:'100%'}}>
-                  <div className="text-left p-2 feedback">
+                  <div className="text-left p-2">
                     <h1>{question[1].title}</h1>
                     {
                       (question[1].response === r[i]) ?
@@ -179,13 +193,25 @@
                     }
                   </div>
                   <p>
-                    Votre score est de <br /> <span style={{color:'orange', fontSize: '2rem'}}>{this.state.score} sur {this.state.feedback.questions.length} </span>
+                    Votre score est de <br /> 
+                    <span className="score-focus-color">{this.state.score}</span> 
+                    sur  
+                    <span className="score-focus-color">{this.state.feedback.questions.length} </span>
                   </p>
                   {
-                    (this.state.score === 0) && 
+                    (this.state.score === 0) ? 
                     <div>
                       <img className="status" src="https://media.giphy.com/media/3ohs7QBAt20X2TbWXS/giphy.gif" alt="" />
                     </div>
+                    :
+                    (this.state.score === this.state.feedback.questions.length) ? 
+                      <div>
+                        <img className="status" src="https://media.giphy.com/media/3ohs86wqIv7muc3yHC/giphy.gif" alt="" />
+                      </div>
+                      :
+                      <div>
+                        <img className="status" src="https://media.giphy.com/media/xUOxeSlm67kczUOeGc/giphy.gif" alt="" />
+                      </div>
                   }
                 </div>
                 {this.feedback()}
