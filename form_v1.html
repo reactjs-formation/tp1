@@ -11,7 +11,7 @@
 
     <style>
       html, body, #root, #root > .container, #root > .container > div {
-        min-height: 100%;
+        min-height: 100vh;
       }
 
       input[type=radio] {
@@ -19,6 +19,12 @@
       }
       label{
         margin-bottom: 10px;
+      }
+      .wrapper-score {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: '100%'
       }
     </style>
 
@@ -57,6 +63,9 @@
             feedback : 'JSX est un sur ensemble à JS'
         }
     }
+
+    const EMAIL_WRONG = 'Email invalide';
+    const EMAIL_EMPTY = 'L\'email ne peux pas rester vide';
 
     class App extends React.Component{
       constructor(props) {
@@ -98,7 +107,7 @@
                 }
               </div>
               :
-              <div className="text-center" style={{height: '100%'}}>
+              <div className="text-center wrapper-score">
                 <span className="fa fa-star" style={{color:'orange', fontSize: '2rem'}}></span>
                 Votre score est de <span style={{color:'orange', fontSize: '2rem'}}>{this.state.score}</span>
               </div>
@@ -171,9 +180,9 @@
           } else {
 
             this.state.currentEmail === null || this.state.currentEmail === '' ?
-              state = {emailError: 'L\'email ne peux pas rester vide'}
+              state = {emailError: EMAIL_EMPTY}
             :
-              state = {emailError: 'Email invalide'}
+              state = {emailError: EMAIL_WRONG}
           }
             
           
@@ -194,7 +203,7 @@
             this.props.showBtnDisplayScore(score);
           else
             this.setState({
-              emailError: 'Email invalide'
+              emailError: (this.state.currentEmail === null) ? EMAIL_EMPTY : EMAIL_WRONG
             })
         }
       }
@@ -202,7 +211,7 @@
       // Verifie si l'email est valide
       validateEmail(email) {
         
-        if(email === null) return false;
+        if (email === null) return false;
 
         return (email.match(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/) !== null)
       }
