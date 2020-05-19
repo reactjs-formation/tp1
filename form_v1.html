@@ -10,7 +10,7 @@
     <script src="https://unpkg.com/babel-standalone@6.15.0/babel.min.js"></script>
 
     <style>
-      body, #root, #root > .container, #root > .container > div {
+      html, body, #root, #root > .container, #root > .container > div {
         min-height: 100%;
       }
 
@@ -163,12 +163,19 @@
         if (save) {
 
           if (this.validateEmail(this.state.currentEmail)) {
+            
             state = {
               email: this.state.currentEmail,
               emailError: null
             }
-        } else
-            state = {emailError: 'Email invalide'}
+          } else {
+
+            this.state.currentEmail === null || this.state.currentEmail === '' ?
+              state = {emailError: 'L\'email ne peux pas rester vide'}
+            :
+              state = {emailError: 'Email invalide'}
+          }
+            
           
         } else {
           state = {currentEmail: e.target.value}
@@ -194,6 +201,9 @@
 
       // Verifie si l'email est valide
       validateEmail(email) {
+        
+        if(email === null) return false;
+
         return (email.match(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/) !== null)
       }
 
@@ -242,8 +252,8 @@
           <form className="w-50 m-auto">
             <Wrapper index={0} key={0}>
               <h1>QCM React</h1>
-              <label htmlFor="test" className="form-check-label">votre email (*) : </label>
-              <Input id="test" emailRegistration={this.emailRegistration} error={this.state.emailError} />
+              <label htmlFor={'q'+0} className="form-check-label">votre email (*) : </label>
+              <Input id={'q'+0} emailRegistration={this.emailRegistration} error={this.state.emailError} />
               <div className="form-group text-right col-12">
                 <button className="btn btn-primary" type="submit" onClick={(e) => {this.emailRegistration(e, true)}} disabled={(this.state.email !== null)}>Valider</button>
               </div>
@@ -299,9 +309,9 @@
               {'Q'+(this.props.num+1)} {this.props.title}
             </h2>
             <div>
-              <label htmlFor="" className="">{this.props.question}</label>
+              <label htmlFor={'q'+(this.props.num+1)} className="">{this.props.question}</label>
             </div>
-            <select key={this.props.key} onChange={this.props.hChange} data-q-index={this.props.num} defaultValue="-1">
+            <select key={this.props.key} onChange={this.props.hChange} id={'q'+(this.props.num+1)} data-q-index={this.props.num} defaultValue="-1">
               <option value="-1">Choix</option>
               {
                 this.props.choices.map((elm, i) => {
@@ -322,14 +332,14 @@
           <div>
             <h2>{'Q'+(this.props.num+1)} {this.props.title}</h2>
             <div>
-              <label htmlFor="" className="">{this.props.question}</label>
+              <label htmlFor={'q'+this.props.num} className="">{this.props.question}</label>
             </div>
             {
               this.props.choices.map((elm, i ) => {
                 return (
                   <div key={i}>
-                    <input type="radio" name={'q'+this.props.num} value={i} onChange={this.props.hChange} data-q-index={this.props.num} />
-                    <label htmlFor=""> {elm}</label>
+                    <input type="radio" name={'q'+this.props.num} value={i} id={'q'+(this.props.num+1)+i} onChange={this.props.hChange} data-q-index={this.props.num} />
+                    <label htmlFor={'q'+(this.props.num+1)+i}> {elm}</label>
                   </div>
                 )
               })
