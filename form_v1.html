@@ -63,30 +63,15 @@
         }
       }
 
-      updateAppState = (data) => {
-
-        const n = data.questions.length
+      updateAppState = (score) => {
         
-        // verifie si toute les reponses sont soumises
-        let answersSubmited = true;
-        for (let i = 0; i < n; i++) {
-          const element = data.finalAnswer[i];
-          if (element === -1) {
-            console.log('element', element)
-            answersSubmited = false;
-            break;
-          }
-        }
-
         // montre le bouton d'affichage du score
-        if (answersSubmited) {
-          this.setState({
-            showBtnScore: true,
-            
-          }, () => {
-            console.log('updateAppState', this.state)
-          })
-        }
+        this.setState({
+          showBtnScore: true,
+          score: score
+        }, () => {
+          console.log('updateAppState', this.state)
+        })
       }
 
       showScore = () => {
@@ -155,7 +140,8 @@
           finalAnswer: Array(n).fill(-1),
           score: 0,
           currentEmail: null,
-          email: null
+          email: null,
+          emailError: null
         }
       }
 
@@ -173,16 +159,41 @@
         this.state.finalAnswer[index] = this.state.currentAnswer[index]
         this.setState({}, () => {
           console.log(this.state)
-          this.props.updateAppState(this.state);
+
+          const n = this.state.questions.length
+          // verifie si toute les reponses sont soumises
+          let answersSubmited = true;
+          for (let i = 0; i < n; i++) {
+            const element = this.state.finalAnswer[i];
+            if (element === -1) {
+              console.log('element', element)
+              answersSubmited = false;
+              break;
+            }
+          }
+
+          // calcule du score si les reponses sont toutes soumises
+          if(answersSubmited) {
+            let score = 0;
+            console.log('Calcule du score', this.state)
+            for (let i = 0; i < n; i++) {
+              const answer = parseInt(this.state.finalAnswer[i]);
+              const godAnswer = this.state.questions[0][1].response
+              console.log('?', answer, godAnswer)
+              if (answer === godAnswer) {
+                score++;
+              }
+            }
+            this.props.updateAppState(score);
+          }
+          
         })
       }
 
       emailRegistration = (e, save=false) => {
         e.preventDefault();
 
-        let state = {
-          currentEmail: e.target.value
-        }
+        let state = {}
 
         if(!save) {
           console.log('Update email')
@@ -191,15 +202,24 @@
           }
         } else {
           console.log('Save email')
-          state = {
-            email: this.state.currentEmail
-          }
+          if(this.validateEmail(this.state.currentEmail)) 
+            state = {
+              email: this.state.currentEmail
+            }
+          else
+            state = {
+              emailError: 'email invalide'
+            }
         }
 
-        this.setState({...state}, () => {
-          console.log(this.state)
-          this.props.updateAppState(this.state);
+        
+        if (state !== {}) this.setState({...state}, () => {
+          console.log(this.state.email)
         })
+      }
+
+      validateEmail(email) {
+        return (email.match(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/) !== null)
       }
         
       render(){
@@ -209,7 +229,7 @@
             <Wrapper index={0} key={0}>
               <h1>QCM React</h1>
               <label htmlFor="test" className="form-check-label">votre email (*) : </label>
-              <Input id="test" emailRegistration={this.emailRegistration} />
+              <Input id="test" emailRegistration={this.emailRegistration} error={this.state.emailError} />
               <div className="form-group text-right col-12">
                 <button className="btn btn-primary" type="submit" onClick={(e) => {this.emailRegistration(e, true)}} disabled={(this.state.email !== null)}>Valider</button>
               </div>
@@ -250,6 +270,7 @@
         return(
           <div className="form-group col-12">
             <input type="text" className="form-text" id={this.props.id} onChange={(e) => {this.props.emailRegistration(e, false)}} />
+            {this.props.error && <div className="text-danger">{this.props.error}</div>}
           </div>
         )
       }
