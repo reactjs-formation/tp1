@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Florent - TP2</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script src="https://unpkg.com/react@16/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/babel-standalone@6.15.0/babel.min.js"></script>
+
+    <style>
+      html, body, #root, #root > .container, #root > .container > div {
+        min-height: 100vh;
+      }
+
+      input[type=radio] {
+        margin-right: 10px;
+      }
+      label{
+        margin-bottom: 10px;
+      }
+      .wrapper-score {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+      }
+      .popup {
+        box-shadow: 0 0 19px 1px #0000005c;
+        border-radius: 10px;
+        padding: 1rem;
+      }
+      .popup img.status{
+        width: 200px;
+      }
+
+      .feedback h1 {
+        font-size: 1.6rem;
+      }
+    </style>
+
+  </head>
+  <body>
+    <div id="root"></div>
+    <!-- compilation JSX => JS -->
+    <script type="text/babel">
+
+    const questions = {
+        'symfony' : {
+            title : "Symfony design pattern.",
+            question: 'Sélectionnez ci-dessous dans la liste la bonne définition caractérisant ce framework PHP',
+            choices : ['MMV', 'MVC', 'MMVV'],
+            response : 1,
+            type : "select",
+            name : "symfony",
+            feedback : 'Symfony est basé sur le pattern MVC'
+        },
+        'react' : {
+            title : "React est-il un framework ?",
+            question: 'Répondez en choisissant une seule et bonne réponse ci-dessous',
+            choices : ['yes', 'no'],
+            response : 1,
+            type : "radio",
+            name : "react",
+            feedback : "React est une librairie"
+        },
+        'jsx' : {
+            title : "JSX c'est quoi ?",
+            question: 'Répondez en choisissant une seule et bonne réponse ci-dessous',
+            choices : ['JSX est un langage compilé', 'JSX est un sur-ensemble développé par Facebook'],
+            response : 1,
+            type: "radio" ,
+            name : "jsx",
+            feedback : 'JSX est un sur ensemble à JS'
+        }
+    }
+
+    const EMAIL_WRONG = 'Email invalide';
+    const EMAIL_EMPTY = 'L\'email ne peux pas rester vide';
+
+    class App extends React.Component{
+      constructor(props) {
+        super(props)
+        this.state = {
+          showScore: false,
+          showBtnScore: false,
+          score: null,
+          feedback: null
+        }
+      }
+      
+
+      showScore = () => {
+        this.setState({
+          showScore: !this.state.showScore
+        })
+      }
+
+      showBtnDisplayScore = (score, feedback) => {
+
+        console.log('showBtnDisplayScore()', score, feedback)
+        // montre le bouton d'affichage du score
+        this.setState({
+          showBtnScore: true,
+          score: score,
+          feedback: feedback
+        })
+      }
+
+      feedback = () => {
+
+        const q = this.state.feedback.questions;
+        const r = this.state.feedback.answers;
+        return (
+          <div style={{display:'flex', flexDirection:'column', alignItems: 'start'}} className="col-6">
+            {q.map((question, i) => {
+              return (
+                <div key={i} style={{flexGrow: '1', width:'100%'}}>
+                  {console.log((question[1].response === r[i]), question[1].response, r[i])}
+                  <div className="text-left p-2 feedback">
+                    <h1>{question[1].title}</h1>
+                    {
+                      (question[1].response === r[i]) ?
+                      <i className="fa fa-check text-success" style={{fontSize:'32px'}}></i>
+                      :
+                      <i className="fa fa-times text-danger" style={{fontSize:'32px'}}></i>
+                    }
+                    <span>Choix: </span>
+                    <span> {question[1].choices[r[i]]}</span>
+                    {
+                      (question[1].response !== r[i]) && 
+                        <div className="container-fluid">
+                          <div className="alert alert-info row" role="alert">
+                            <span className="col-4 p-0">Reponse attendu : </span><div className="col-8 p-0 text-left">{question[1].choices[question[1].response]}</div>
+                          </div>
+                        </div>
+                    }
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        )
+      }
+
+      reset = (e) => {
+        e.preventDefault();
+        console.log('reset')
+
+        this.setState({
+          showBtnScore: false,
+          score: 0,
+          showScore: false
+        })
+      }
+ 
+      render(){
+        return(
+          <div className="container">
+
+            { this.state.showScore === false ?
+              <div>
+                <Form showBtnDisplayScore={this.showBtnDisplayScore} />
+                {
+                  this.state.showBtnScore === true  &&
+                  <div className="text-center p-5">
+                    <button className="btn btn-primary" onClick={this.showScore}>Montrer le score</button>
+                  </div>
+                }
+              </div>
+              :
+              <div className="text-center wrapper-score">
+                <div className="popup">
+                  <div>
+                    {
+                      this.state.feedback.questions.map((elm, i) => {
+                        return (this.state.score > i) ? 
+                          <span key={i} className="fa fa-star" style={{color:'orange', fontSize: '2rem'}}></span> 
+                          : 
+                          <span key={i} className="fa fa-star" style={{fontSize: '2rem'}}></span>
+                      }) 
+                    }
+                  </div>
+                  <p>
+                    Votre score est de <br /> <span style={{color:'orange', fontSize: '2rem'}}>{this.state.score} sur {this.state.feedback.questions.length} </span>
+                  </p>
+                  {
+                    (this.state.score === 0) && 
+                    <div>
+                      <img className="status" src="https://media.giphy.com/media/3ohs7QBAt20X2TbWXS/giphy.gif" alt="" />
+                    </div>
+                  }
+                </div>
+                {this.feedback()}
+                <div className="text-center">
+                  <button className="btn btn-primary" onClick={this.reset}>Recommencer le questionnaire</button>
+                </div>
+              </div>
+            }
+          </div>
+        )
+      }
+    }
+
+
+    class Wrapper extends React.Component{
+        render = () => 
+            this.props.show && <div className="row flex-column">{this.props.children}</div>
+    }
+
+    class Form extends React.Component{
+
+      
+      constructor(props) {
+        super(props)
+        
+        let q = Object.entries(questions)
+        q = [
+          q[1],
+          q[2],
+          q[0]
+        ]
+        const n = q.length
+        
+        this.state = {
+          questions: q,
+          questionIndex: 0,
+          currentAnswer: Array(n).fill(-1),
+          finalAnswer: Array(n).fill(-1),
+          currentEmail: null,
+          email: null,
+          emailError: null
+        }
+      }
+
+      hChange = (e) => {
+        const index = e.target.dataset.qIndex;
+        this.state.currentAnswer[index] = e.target.value
+      }
+
+      hClick = (e) => {
+        e.preventDefault();
+
+        const index = e.target.dataset.qIndex;
+        
+        console.log(this.state.currentAnswer[index])
+        if (this.state.currentAnswer[index] === -1) return;
+
+        this.state.finalAnswer[index] = parseInt(this.state.currentAnswer[index])
+        
+        this.setState({
+            questionIndex: this.state.questionIndex+1
+        }, () => {
+            this.finish()
+        })
+      }
+
+      emailRegistration = (e, save=false) => {
+        e.preventDefault();
+
+        let state = {}
+
+        if (save) {
+
+          if (this.validateEmail(this.state.currentEmail)) {
+            
+            state = {
+              email: this.state.currentEmail,
+              emailError: null,
+              questionIndex: this.state.questionIndex+1
+            }
+          } else {
+
+            this.state.currentEmail === null || this.state.currentEmail === '' ?
+              state = {emailError: EMAIL_EMPTY}
+            :
+              state = {emailError: EMAIL_WRONG}
+          }
+            
+          
+        } else {
+          state = {currentEmail: e.target.value}
+        }
+        
+        if (state !== {}) this.setState({...state}, () => {
+          this.finish()
+        })
+      }
+
+      finish = () => {
+        let score = 0;
+        if((score = this.getScore()) !== false) {
+          
+          if(this.emailExist()) 
+            this.props.showBtnDisplayScore(score, {
+                questions: this.state.questions,
+                answers: this.state.finalAnswer
+            });
+          else
+            this.setState({
+              emailError: (this.state.currentEmail === null) ? EMAIL_EMPTY : EMAIL_WRONG
+            })
+        }
+      }
+
+      // Verifie si l'email est valide
+      validateEmail(email) {
+        
+        if (email === null) return false;
+
+        return (email.match(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/) !== null)
+      }
+
+      // verifie si toute les reponses sont soumises
+      isAnswersSubmited(){
+        const n = this.state.questions.length
+          // verifie si toute les reponses sont soumises
+          let answersSubmited = true;
+          for (let i = 0; i < n; i++) {
+            const element = this.state.finalAnswer[i];
+            if (element === -1) {
+              answersSubmited = false;
+              break;
+            }
+          }
+
+         return  answersSubmited;
+      }
+
+      emailExist() {
+        return (this.state.email !== null)
+      }
+
+      // calcule du score si les reponses sont toutes soumises
+      getScore(){
+        if(this.isAnswersSubmited()) {
+          const n = this.state.questions.length
+            let score = 0;
+            for (let i = 0; i < n; i++) {
+
+              const answer = parseInt(this.state.finalAnswer[i]);
+              const goodAnswer = this.state.questions[0][1].response
+              
+              if (answer === goodAnswer) score++;
+
+            }
+            return score;
+        }
+        return false;
+      }
+        
+      render(){
+        
+        return(
+          <form className="w-50 m-auto">
+            <Wrapper index={0} key={0} show={this.state.questionIndex === 0}>
+              <h1>QCM React</h1>
+              <label htmlFor={'q'+0} className="form-check-label">votre email (*) : </label>
+              <Input id={'q'+0} emailRegistration={this.emailRegistration} error={this.state.emailError} />
+              <div className="form-group text-right col-12">
+                <button className="btn btn-primary" type="submit" onClick={(e) => {this.emailRegistration(e, true)}} disabled={(this.state.email !== null)}>Valider</button>
+              </div>
+            </Wrapper>
+            {
+              this.state.questions.map((elm,i) => {
+
+                // q pour question
+                const q = elm[1];
+                return (
+                  <Wrapper key={i+1} show={this.state.questionIndex === i+1}>
+                    {q.type === 'select' ? 
+                      <Select {...q} num={i} hChange={this.hChange} disabled={(this.state.finalAnswer[i] !== -1)} />
+                      :
+                      q.type === 'radio' ? 
+                        <Radio {...q} num={i} hChange={this.hChange} disabled={(this.state.finalAnswer[i] !== -1)} /> 
+                        : 
+                        <div></div>
+                    }
+                    
+                    <div className="form-group text-right col-12">
+                      <button type="submit" className="btn btn-primary" data-q-index={i} onClick={this.hClick} disabled={(this.state.finalAnswer[i] !== -1)}>Valider</button>
+                    </div>
+                  </Wrapper>
+                )
+              })
+            }
+            
+          </form>
+          
+        )
+      }
+    }
+
+    class Input extends React.Component{
+        
+      render(){
+        return(
+          <div className="form-group col-12">
+            <input type="text" className="form-text" autoComplete="false" id={this.props.id} onChange={(e) => {this.props.emailRegistration(e, false)}} />
+            {this.props.error && <div className="text-danger">{this.props.error}</div>}
+          </div>
+        )
+      }
+    }
+
+    class Select extends React.Component{
+        
+      render(){
+        return(
+          <div className="form-text">
+            <h2>
+              {'Q'+(this.props.num+1)} {this.props.title}
+            </h2>
+            <div>
+              <label htmlFor={'q'+(this.props.num+1)} className="">{this.props.question}</label>
+            </div>
+            <select key={this.props.key} onChange={this.props.hChange} disabled={this.props.disabled}  id={'q'+(this.props.num+1)} data-q-index={this.props.num} defaultValue="-1">
+              <option value="-1">Choix</option>
+              {
+                this.props.choices.map((elm, i) => {
+                  return (
+                    <option key={i} value={i}>{elm}</option>
+                  )
+                })
+              }
+            </select>
+          </div>
+        )
+      }
+    }
+    class Radio extends React.Component{
+        
+      render(){
+        return(
+          <div>
+            <h2>{'Q'+(this.props.num+1)} {this.props.title}</h2>
+            <div>
+              <label htmlFor={'q'+this.props.num} className="">{this.props.question}</label>
+            </div>
+            {
+              this.props.choices.map((elm, i ) => {
+                return (
+                  <div key={i}>
+                    <input type="radio" disabled={this.props.disabled} name={'q'+this.props.num} value={i} id={'q'+(this.props.num+1)+i} onChange={this.props.hChange} data-q-index={this.props.num} />
+                    <label htmlFor={'q'+(this.props.num+1)+i}> {elm}</label>
+                  </div>
+                )
+              })
+            }
+          </div>
+        )
+      }
+    }
+    class File extends React.Component{
+        
+      render(){
+        return(
+          <div></div>
+        )
+      }
+    }
+
+    // Rendu dans le DOM
+    ReactDOM.render(<App />,document.getElementById('root'));
+
+    </script>
+  </body>
+</html>
