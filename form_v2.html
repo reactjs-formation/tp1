@@ -98,8 +98,6 @@
       }
 
       showBtnDisplayScore = (score, feedback) => {
-
-        console.log('showBtnDisplayScore()', score, feedback)
         // montre le bouton d'affichage du score
         this.setState({
           showBtnScore: true,
@@ -117,7 +115,6 @@
             {q.map((question, i) => {
               return (
                 <div key={i} style={{flexGrow: '1', width:'100%'}}>
-                  {console.log((question[1].response === r[i]), question[1].response, r[i])}
                   <div className="text-left p-2 feedback">
                     <h1>{question[1].title}</h1>
                     {
@@ -146,7 +143,6 @@
 
       reset = (e) => {
         e.preventDefault();
-        console.log('reset')
 
         this.setState({
           showBtnScore: false,
@@ -244,7 +240,6 @@
 
         const index = e.target.dataset.qIndex;
         
-        console.log(this.state.currentAnswer[index])
         if (this.state.currentAnswer[index] === -1) return;
 
         this.state.finalAnswer[index] = parseInt(this.state.currentAnswer[index])
