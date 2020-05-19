@@ -4,11 +4,16 @@
     <meta charset="UTF-8" />
     <title>Florent - TP1</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <script src="https://unpkg.com/react@16/umd/react.development.js"></script>
     <script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
     <script src="https://unpkg.com/babel-standalone@6.15.0/babel.min.js"></script>
 
     <style>
+      body, #root, #root > .container, #root > .container > div {
+        min-height: 100%;
+      }
+
       input[type=radio] {
         margin-right: 10px;
       }
@@ -62,17 +67,7 @@
           score: null
         }
       }
-
-      updateAppState = (score) => {
-        
-        // montre le bouton d'affichage du score
-        this.setState({
-          showBtnScore: true,
-          score: score
-        }, () => {
-          console.log('updateAppState', this.state)
-        })
-      }
+      
 
       showScore = () => {
         this.setState({
@@ -80,7 +75,8 @@
         })
       }
 
-      showBtnScore = (score) => {
+      showBtnDisplayScore = (score) => {
+        // montre le bouton d'affichage du score
         this.setState({
           showBtnScore: true,
           score: score
@@ -93,7 +89,7 @@
 
             { this.state.showScore === false ?
               <div>
-                <Form updateAppState={this.updateAppState} />
+                <Form showBtnDisplayScore={this.showBtnDisplayScore} />
                 {
                   this.state.showBtnScore === true  &&
                   <div className="text-center p-5">
@@ -102,8 +98,9 @@
                 }
               </div>
               :
-              <div>
-                Score {this.state.score}
+              <div className="text-center" style={{height: '100%'}}>
+                <span className="fa fa-star" style={{color:'orange', fontSize: '2rem'}}></span>
+                Votre score est de <span style={{color:'orange', fontSize: '2rem'}}>{this.state.score}</span>
               </div>
             }
           </div>
@@ -146,48 +143,16 @@
       }
 
       hChange = (e) => {
-        console.log('hChange', e.target, e.target.value, e.target.dataset.qIndex)
         const index = e.target.dataset.qIndex;
         this.state.currentAnswer[index] = e.target.value
-        console.log(this.state.currentAnswer)
       }
 
       hClick = (e) => {
         e.preventDefault();
-        console.log(e.target)
+        
         const index = e.target.dataset.qIndex;
         this.state.finalAnswer[index] = this.state.currentAnswer[index]
-        this.setState({}, () => {
-          console.log(this.state)
-
-          const n = this.state.questions.length
-          // verifie si toute les reponses sont soumises
-          let answersSubmited = true;
-          for (let i = 0; i < n; i++) {
-            const element = this.state.finalAnswer[i];
-            if (element === -1) {
-              console.log('element', element)
-              answersSubmited = false;
-              break;
-            }
-          }
-
-          // calcule du score si les reponses sont toutes soumises
-          if(answersSubmited) {
-            let score = 0;
-            console.log('Calcule du score', this.state)
-            for (let i = 0; i < n; i++) {
-              const answer = parseInt(this.state.finalAnswer[i]);
-              const godAnswer = this.state.questions[0][1].response
-              console.log('?', answer, godAnswer)
-              if (answer === godAnswer) {
-                score++;
-              }
-            }
-            this.props.updateAppState(score);
-          }
-          
-        })
+        this.setState({}, () => this.finish())
       }
 
       emailRegistration = (e, save=false) => {
@@ -195,31 +160,80 @@
 
         let state = {}
 
-        if(!save) {
-          console.log('Update email')
-          state = {
-            currentEmail: e.target.value
-          }
-        } else {
-          console.log('Save email')
-          if(this.validateEmail(this.state.currentEmail)) 
-            state = {
-              email: this.state.currentEmail
-            }
-          else
-            state = {
-              emailError: 'email invalide'
-            }
-        }
+        if (save) {
 
+          if (this.validateEmail(this.state.currentEmail)) {
+            state = {
+              email: this.state.currentEmail,
+              emailError: null
+            }
+        } else
+            state = {emailError: 'Email invalide'}
+          
+        } else {
+          state = {currentEmail: e.target.value}
+        }
         
         if (state !== {}) this.setState({...state}, () => {
-          console.log(this.state.email)
+          this.finish()
         })
       }
 
+      finish = () => {
+        let score = 0;
+        if(score = this.getScore()) {
+          
+          if(this.emailExist()) 
+            this.props.showBtnDisplayScore(score);
+          else
+            this.setState({
+              emailError: 'Email invalide'
+            })
+        }
+      }
+
+      // Verifie si l'email est valide
       validateEmail(email) {
         return (email.match(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/) !== null)
+      }
+
+      // verifie si toute les reponses sont soumises
+      isAnswersSubmited(){
+        const n = this.state.questions.length
+          // verifie si toute les reponses sont soumises
+          let answersSubmited = true;
+          for (let i = 0; i < n; i++) {
+            const element = this.state.finalAnswer[i];
+            if (element === -1) {
+              answersSubmited = false;
+              break;
+            }
+          }
+
+         return  answersSubmited;
+      }
+
+      emailExist() {
+        return (this.state.email !== null)
+      }
+
+      // calcule du score si les reponses sont toutes soumises
+      getScore(){
+        if(this.isAnswersSubmited()) {
+          const n = this.state.questions.length
+            let score = 0;
+            for (let i = 0; i < n; i++) {
+
+              const answer = parseInt(this.state.finalAnswer[i]);
+              const godAnswer = this.state.questions[0][1].response
+              
+              if (answer === godAnswer) {
+                score++;
+              }
+            }
+            return score;
+        }
+        return false;
       }
         
       render(){
@@ -269,7 +283,7 @@
       render(){
         return(
           <div className="form-group col-12">
-            <input type="text" className="form-text" id={this.props.id} onChange={(e) => {this.props.emailRegistration(e, false)}} />
+            <input type="text" className="form-text" autoComplete="false" id={this.props.id} onChange={(e) => {this.props.emailRegistration(e, false)}} />
             {this.props.error && <div className="text-danger">{this.props.error}</div>}
           </div>
         )
